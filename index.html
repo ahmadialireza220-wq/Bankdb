@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جستجوی ربات‌های تلگرام - BankDB</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .category-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .category-btn:hover,
+        .category-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .content {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        .filters {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            height: fit-content;
+        }
+
+        .filter-group {
+            margin-bottom: 25px;
+        }
+
+        .filter-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .filter-option input {
+            margin-left: 10px;
+        }
+
+        .results-info {
+            margin-bottom: 20px;
+            color: #6c757d;
+        }
+
+        .bots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .bot-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bot-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .bot-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+        }
+
+        .bot-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .bot-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            margin-left: 15px;
+        }
+
+        .bot-info {
+            flex: 1;
+        }
+
+        .bot-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .bot-username {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .bot-category {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .bot-description {
+            color: #495057;
+            line-height: 1.6;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+
+        .bot-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.85em;
+            color: #6c757d;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        .view-bot-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .view-bot-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .add-bot-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-top: 40px;
+            border-radius: 15px;
+        }
+
+        .add-bot-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .add-bot-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .bots-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🤖 BankDB</div>
+            <div class="subtitle">مرجع تخصصی ربات‌های تلگرام</div>
+        </div>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="نام ربات، دسته‌بندی یا کلیدواژه را جستجو کنید...">
+                <button class="search-btn">🔍 جستجو</button>
+            </div>
+            
+            <div class="categories">
+                <button class="category-btn active">همه ربات‌ها</button>
+                <button class="category-btn">💰 مالی و بانکی</button>
+                <button class="category-btn">🛒 تجارت و فروش</button>
+                <button class="category-btn">📚 آموزش و علمی</button>
+                <button class="category-btn">🎮 بازی و سرگرمی</button>
+                <button class="category-btn">🔧 ابزار و utility</button>
+                <button class="category-btn">📱 شبکه‌های اجتماعی</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="filters">
+                <div class="filter-group">
+                    <div class="filter-title">🔍 فیلتر پیشرفته</div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="verified" checked>
+                        <label for="verified">فقط ربات‌های تأیید شده</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="active" checked>
+                        <label for="active">فقط ربات‌های فعال</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-title">📊 تعداد کاربران</div>
+                    <div class="filter-option">
+                        <input type="radio" id="users-all" name="users" checked>
+                        <label for="users-all">همه</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" id="users-1000" name="users">
+                        <label for="users-1000">+۱۰۰۰ کاربر</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" id="users-10000" name="users">
+                        <label for="users-10000">+۱۰۰۰۰ کاربر</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-title">⭐ امتیاز</div>
+                    <div class="filter-option">
+                        <input type="radio" id="rating-all" name="rating" checked>
+                        <label for="rating-all">همه</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" id="rating-4" name="rating">
+                        <label for="rating-4">۴ ستاره به بالا</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" id="rating-4.5" name="rating">
+                        <label for="rating-4.5">۴.۵ ستاره به بالا</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results">
+                <div class="results-info">نمایش ۱۲ ربات از ۱۲۴ ربات موجود</div>
+                
+                <div class="bots-grid">
+                    <!-- ربات ۱ -->
+                    <div class="bot-card">
+                        <div class="bot-header">
+                            <div class="bot-avatar">💰</div>
+                            <div class="bot-info">
+                                <div class="bot-name">ربات مالی هوشمند</div>
+                                <div class="bot-username">@smart_finance_bot</div>
+                            </div>
+                            <div class="bot-category">مالی</div>
+                        </div>
+                        <div class="bot-description">
+                            مدیریت هوشمند سرمایه‌گذاری، پیگیری بازارهای مالی و ارائه تحلیل‌های تخصصی در حوزه بورس و ارز
+                        </div>
+                        <div class="bot-stats">
+                            <div class="stat">
+                                <div class="stat-number">۱۲٫۵K</div>
+                                <div>کاربر فعال</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-number">۴.۸</div>
+                                <div>⭐ امتیاز</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-number">۹۸٪</div>
+                                <div>رضایت</div>
+                            </div>
+                        </div>
+                        <button class="view-bot-btn">مشاهده و استفاده</button>
+                    </div>
+
+                    <!-- ربات ۲ -->
+                    <div class="bot-card">
+                        <div class="bot-header">
+                            <div class="bot-avatar">📚</div>
+                            <div class="bot-info">
+                                <div class="bot-name">آموزش زبان انگلیسی</div>
+                                <div class="bot-username">@english_learning_bot</div>
+                            </div>
+                            <div class="bot-category">آموزشی</div>
+                        </div>
+                        <div class="bot-description">
+                            یادگیری زبان انگلیسی با روش‌های مدرن، تمرین روزانه، آزمون‌های سطح‌بندی شده و پشتیبانی آنلاین
+                        </div>
+                        <div class="bot-stats">
+                            <div class="stat">
+                                <div class="stat-number">۸٫۷K</div>
+                                <div>کاربر فعال</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-number">۴.۶</div>
+                                <div>⭐ امتیاز</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-number">۹۵٪</div>
+                                <div>رضایت</div>
+                            </div>
+                        </div>
+                        <button class="view-bot-btn">مشاهده و استفاده</button>
+                    </div>
+
+                    <!-- ربات ۳ -->
+                    <div class="bot-card">
+                        <div class="bot-header">
+                            <div class="bot-avatar">🛒</div>
+                            <div class="bot-info">
+                                <div class="bot-name">مدیریت فروشگاه</div>
+                                <div class="bot-username">@shop_manager_bot</div>
+                            </div>
+                            <div class="bot-category">تجاری</div>
+                        </div>
+                        <div class="bot-description">
+                            سیستم کامل مدیریت فروشگاه اینستاگرامی، پیگیری سفارشات، مدیریت موجودی و ارتباط با مشتریان
+                        </div>
+                        <div class="bot-stats">
+                            <div class="stat">
+                                <div class="stat-number">۵٫۲K</div>
+                                <div>کاربر فعال</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-number">۴.۷</div>
+                                <div>⭐ امتیاز</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-number">۹۶٪</div>
+                                <div>رضایت</div>
+                            </div>
+                        </div>
+                        <button class="view-bot-btn">مشاهده و استفاده</button>
+                    </div>
+                </div>
+
+                <div class="add-bot-section">
+                    <h3>🤖 ربات خود را به جامعه ما اضافه کنید!</h3>
+                    <p>ربات خود را ثبت کنید و در معرض دید هزاران کاربر قرار دهید</p>
+                    <button class="add-bot-btn">➕ ثبت ربات جدید</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // داده‌های نمونه ربات‌ها
+        const sampleBots = [
+            {
+                name: "ربات مالی هوشمند",
+                username: "@smart_finance_bot",
+                category: "مالی",
+                description: "مدیریت هوشمند سرمایه‌گذاری، پیگیری بازارهای مالی و ارائه تحلیل‌های تخصصی",
+                users: "12.5K",
+                rating: "4.8",
+                satisfaction: "98%",
+                emoji: "💰"
+            },
+            {
+                name: "آموزش زبان انگلیسی",
+                username: "@english_learning_bot", 
+                category: "آموزشی",
+                description: "یادگیری زبان انگلیسی با روش‌های مدرن، تمرین روزانه و آزمون‌های سطح‌بندی شده",
+                users: "8.7K",
+                rating: "4.6", 
+                satisfaction: "95%",
+                emoji: "📚"
+            },
+            {
+                name: "مدیریت فروشگاه",
+                username: "@shop_manager_bot",
+                category: "تجاری",
+                description: "سیستم کامل مدیریت فروشگاه اینستاگرامی، پیگیری سفارشات و مدیریت موجودی",
+                users: "5.2K",
+                rating: "4.7",
+                satisfaction: "96%",
+                emoji: "🛒"
+            }
+        ];
+
+        // مدیریت کلیک روی دسته‌بندی‌ها
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // اینجا می‌توانید فیلتر کردن ربات‌ها را پیاده‌سازی کنید
+                filterBots(this.textContent);
+            });
+        });
+
+        // مدیریت جستجو
+        document.querySelector('.search-btn').addEventListener('click', function() {
+            const searchTerm = document.querySelector('.search-input').value;
+            searchBots(searchTerm);
+        });
+
+        // مدیریت Enter در جستجو
+        document.querySelector('.search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchBots(this.value);
+            }
+        });
+
+        // توابع نمونه برای جستجو و فیلتر
+        function filterBots(category) {
+            console.log('فیلتر بر اساس:', category);
+            // پیاده‌سازی منطق فیلتر کردن
+        }
+
+        function searchBots(term) {
+            console.log('جستجو برای:', term);
+            // پیاده‌سازی منطق جستجو
+        }
+
+        // دکمه مشاهده ربات
+        document.querySelectorAll('.view-bot-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const botCard = this.closest('.bot-card');
+                const botName = botCard.querySelector('.bot-name').textContent;
+                alert(`در حال انتقال به ربات: ${botName}`);
+                // اینجا می‌توانید کاربر را به ربات مورد نظر هدایت کنید
+            });
+        });
+
+        // دکمه ثبت ربات جدید
+        document.querySelector('.add-bot-btn').addEventListener('click', function() {
+            alert('سیستم ثبت ربات جدید - به زودی راه‌اندازی می‌شود');
+            // اینجا می‌توانید کاربر را به صفحه ثبت نام هدایت کنید
+        });
+    </script>
+</body>
+</html>
